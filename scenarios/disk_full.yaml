@@ -1,0 +1,42 @@
+name: disk-full
+description: |
+  Database server disk utilization reaching critical levels due to
+  unrotated logs or unbounded WAL growth. Risks database crash and
+  data loss if not addressed.
+
+device_id: db-srv-01
+scenario_type: disk_full
+
+initial_metrics:
+  cpu_percent: 20.0
+  memory_percent: 60.0
+  disk_percent: 40.0
+  network_error_rate: 0.001
+  response_time_ms: 50.0
+  bgp_prefixes: 850.0
+  link_state: 1.0
+
+incident_metrics:
+  cpu_percent: 25.0
+  memory_percent: 65.0
+  disk_percent: 93.0
+  network_error_rate: 0.001
+  response_time_ms: 200.0
+  bgp_prefixes: 850.0
+  link_state: 1.0
+
+expected_diagnosis:
+  category: capacity
+  primary_causes:
+    - Log files consuming disk space
+    - Database WAL/binlog growth
+    - Failed backup cleanup
+  confidence: high
+
+expected_remediation:
+  risk_level: low
+  steps:
+    - analyze_disk_usage
+    - rotate_logs
+    - clean_temp_files
+    - expand_volume

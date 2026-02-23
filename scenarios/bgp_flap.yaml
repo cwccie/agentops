@@ -1,0 +1,42 @@
+name: bgp-flap
+description: |
+  BGP session instability on a core router causes route flapping.
+  Received prefix count drops below expected thresholds, causing
+  intermittent reachability issues across the network.
+
+device_id: core-rtr-02
+scenario_type: bgp_flap
+
+initial_metrics:
+  cpu_percent: 30.0
+  memory_percent: 50.0
+  disk_percent: 35.0
+  network_error_rate: 0.001
+  response_time_ms: 100.0
+  bgp_prefixes: 850.0
+  link_state: 1.0
+
+incident_metrics:
+  cpu_percent: 45.0
+  memory_percent: 55.0
+  disk_percent: 35.0
+  network_error_rate: 0.03
+  response_time_ms: 800.0
+  bgp_prefixes: 45.0
+  link_state: 1.0
+
+expected_diagnosis:
+  category: config
+  primary_causes:
+    - BGP neighbor configuration mismatch
+    - Route policy rejecting prefixes
+    - MTU mismatch causing TCP session drops
+  confidence: high
+
+expected_remediation:
+  risk_level: high
+  steps:
+    - check_bgp_neighbors
+    - soft_reset_bgp
+    - apply_route_dampening
+    - verify_route_table

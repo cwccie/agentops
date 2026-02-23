@@ -1,0 +1,66 @@
+# Scenario: Link Down
+# A physical link failure on a core router causing connectivity loss.
+#
+# Pipeline: Monitor detects link_state=0 -> Diagnoser identifies cable/SFP failure
+# -> Remediator bounces interface + activates failover -> Verifier confirms restoration
+
+name: link-down
+description: |
+  Physical network link failure on a core router. The monitoring agent detects
+  the interface going down (link_state=0) and elevated error rates. The diagnosis
+  agent performs topology-aware correlation to identify the scope of impact and
+  determine whether the root cause is hardware (cable, SFP) or software
+  (spanning-tree, LACP).
+
+  The remediation agent proposes bouncing the interface and activating a backup
+  path, with automatic rollback if connectivity isn't restored.
+
+device_id: core-rtr-01
+scenario_type: link_down
+
+initial_metrics:
+  cpu_percent: 25.0
+  memory_percent: 45.0
+  disk_percent: 40.0
+  network_error_rate: 0.001
+  response_time_ms: 120.0
+  bgp_prefixes: 850.0
+  link_state: 1.0
+
+incident_metrics:
+  cpu_percent: 28.0
+  memory_percent: 46.0
+  disk_percent: 40.0
+  network_error_rate: 0.08
+  response_time_ms: 5000.0
+  bgp_prefixes: 0.0
+  link_state: 0.0
+
+expected_diagnosis:
+  category: hardware
+  primary_causes:
+    - Physical cable disconnected or damaged
+    - Transceiver/SFP failure
+    - Switch port error-disabled
+  confidence: high
+
+expected_remediation:
+  risk_level: high
+  steps:
+    - check_physical_layer
+    - bounce_interface
+    - activate_failover
+    - verify_connectivity
+
+post_remediation_metrics:
+  cpu_percent: 25.0
+  memory_percent: 45.0
+  disk_percent: 40.0
+  network_error_rate: 0.002
+  response_time_ms: 130.0
+  bgp_prefixes: 850.0
+  link_state: 1.0
+
+blast_radius:
+  direct_impact: [core-rtr-02, dist-sw-01, fw-01]
+  service_impact: [routing, bgp, firewall]

@@ -1,0 +1,39 @@
+name: cpu-spike
+description: |
+  A runaway process or excessive load causes CPU utilization to spike above 90%
+  on a web server. Response times degrade and the application becomes unresponsive.
+
+device_id: web-srv-01
+scenario_type: cpu_spike
+
+initial_metrics:
+  cpu_percent: 25.0
+  memory_percent: 45.0
+  disk_percent: 40.0
+  network_error_rate: 0.001
+  response_time_ms: 120.0
+  bgp_prefixes: 850.0
+  link_state: 1.0
+
+incident_metrics:
+  cpu_percent: 97.0
+  memory_percent: 65.0
+  disk_percent: 42.0
+  network_error_rate: 0.003
+  response_time_ms: 4500.0
+  bgp_prefixes: 850.0
+  link_state: 1.0
+
+expected_diagnosis:
+  category: capacity
+  primary_causes:
+    - Runaway process consuming CPU
+    - Insufficient capacity for current load
+  confidence: high
+
+expected_remediation:
+  risk_level: medium
+  steps:
+    - identify_top_processes
+    - apply_cpu_limit
+    - restart_service

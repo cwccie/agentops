@@ -1,0 +1,41 @@
+name: memory-leak
+description: |
+  Application server experiencing a gradual memory leak. Memory utilization
+  steadily increases over time, eventually triggering OOM killer and
+  causing service disruption.
+
+device_id: web-srv-02
+scenario_type: mem_leak
+
+initial_metrics:
+  cpu_percent: 20.0
+  memory_percent: 40.0
+  disk_percent: 35.0
+  network_error_rate: 0.001
+  response_time_ms: 100.0
+  bgp_prefixes: 850.0
+  link_state: 1.0
+
+incident_metrics:
+  cpu_percent: 35.0
+  memory_percent: 92.0
+  disk_percent: 38.0
+  network_error_rate: 0.005
+  response_time_ms: 600.0
+  bgp_prefixes: 850.0
+  link_state: 1.0
+
+expected_diagnosis:
+  category: software
+  primary_causes:
+    - Application memory leak (no GC/free)
+    - Cache not bounded
+    - Connection pool exhaustion
+  confidence: high
+
+expected_remediation:
+  risk_level: medium
+  steps:
+    - capture_heap_dump
+    - set_memory_limit
+    - graceful_restart
